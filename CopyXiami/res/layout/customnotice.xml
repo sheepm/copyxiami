@@ -77,7 +77,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:src="@drawable/widget_btn_pause_normal" />
+                />
 
             <ImageView
                 android:id="@+id/widget_next"

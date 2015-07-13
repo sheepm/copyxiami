@@ -228,6 +228,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Constants.ACTION_LIST_SEARCH)) {
 				position = intent.getIntExtra("position", 0);
+				isPlay= true;
 				long id = intent.getLongExtra("id", 0);
 				for (int i = 0; i < mp3Infos.size(); i++) {
 					if (id == mp3Infos.get(i).getId()) {
@@ -246,7 +247,7 @@ public class MainActivity extends Activity implements OnClickListener {
 							.getIntExtra("position", 0));
 					handler.sendMessage(message);
 					
-				}else if (!isFirst) {
+				}else{
 					isPlay = true;
 					Message message = Message.obtain();
 					message.obj = isPlay;
@@ -255,6 +256,8 @@ public class MainActivity extends Activity implements OnClickListener {
 				}
 			
 			} else if (intent.getAction().equals(Constants.ACTION_NEXT)) {
+				isPlay = true;
+				isFirst = false;
 				if (position < mp3Infos.size() - 1) {
 					++position;
 				} else {
@@ -263,12 +266,40 @@ public class MainActivity extends Activity implements OnClickListener {
 				Message message = Message.obtain();
 				message.obj = mp3Infos.get(position);
 				handler.sendMessage(message);
+				
+				Message message2 = Message.obtain();
+				message2.obj = isPlay;
+				handler2.sendMessage(message2);
+			
 			} else if (intent.getAction().equals(Constants.ACTION_PAUSE)) {
 				isPlay = false;
+				isFirst = false;
+				
+				
 				Message message = Message.obtain();
-				message.obj = isPlay;
-				handler2.sendMessage(message);
+				message.obj = mp3Infos.get(position);
+				handler.sendMessage(message);
+				
+				Message message2 = Message.obtain();
+				message2.obj = isPlay;
+				handler2.sendMessage(message2);
+				
 				setNotification();
+			}else if (intent.getAction().equals(Constants.ACTION_PRV)) {
+				isPlay = true;
+				if (position == 0) {
+					position = mp3Infos.size()-1;
+				}else {
+					--position;
+				}
+				
+				Message message = Message.obtain();
+				message.obj = mp3Infos.get(position);
+				handler.sendMessage(message);
+				
+				Message message2 = Message.obtain();
+				message2.obj = isPlay;
+				handler2.sendMessage(message2);
 			}
 		}
 
@@ -295,6 +326,12 @@ public class MainActivity extends Activity implements OnClickListener {
 			remoteViews.setImageViewBitmap(R.id.widget_album, bitmap);
 			remoteViews.setTextViewText(R.id.widget_title, info.getTitle());
 			remoteViews.setTextViewText(R.id.widget_artist, info.getArtist());
+			if (isPlay) {
+				remoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_btn_pause_normal);
+			}else {
+				remoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_btn_play_normal);
+			}
+		
 
 			setNotification();
 		};
@@ -309,8 +346,12 @@ public class MainActivity extends Activity implements OnClickListener {
 			boolean is = (Boolean) msg.obj;
 			if (is) {
 				remoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_btn_play_normal);
+				btm_state
+				.setImageResource(R.drawable.player_btn_radio_pause_normal);
 			}else {
 				remoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_btn_pause_normal);
+				btm_state
+				.setImageResource(R.drawable.player_btn_radio_play_normal);
 			}
 		};
 		
@@ -340,7 +381,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
 		case R.id.player_state:
-			Log.i("bottom pause", "pause");
 			if (btm_state
 					.getDrawable()
 					.getConstantState()
@@ -364,6 +404,11 @@ public class MainActivity extends Activity implements OnClickListener {
 				btm_state
 						.setImageResource(R.drawable.player_btn_radio_pause_normal);
 			}
+			break;
+		case R.id.play_next:
+			Intent broadcast = new Intent();
+			broadcast.setAction(Constants.ACTION_NEXT);
+			sendBroadcast(broadcast);
 			break;
 
 		default:

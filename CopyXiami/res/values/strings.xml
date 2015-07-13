@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CopyXiami</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
+    <string-array name="menu">
+        <item>定时关闭</item>
+        <item>音乐闹钟</item>
+        <item>听歌识曲</item>
+        <item>我的演出</item>
+        <item>会员中心</item>
+        <item>音乐流量包</item>
+        <item>活动广场</item>
+        <item>应用推荐</item>
+        <item>个性化彩铃</item>
+        <item>意见反馈</item>
+    </string-array>
+
+</resources>

@@ -3,6 +3,7 @@ package com.sheepm.service;
 import java.util.List;
 
 import com.sheepm.Utils.Constants;
+import com.sheepm.application.Myapp;
 import com.sheepm.bean.Mp3Info;
 
 import android.app.Service;
@@ -46,6 +47,7 @@ public class MusicService extends Service implements OnPreparedListener,
 		filter.addAction(Constants.ACTION_PLAY);
 		filter.addAction(Constants.ACTION_NEXT);
 		filter.addAction(Constants.ACTION_PRV);
+		filter.setPriority(1000);
 		receiver = new MyBroadcastReceiver();
 		registerReceiver(receiver, filter); // ×¢²á½ÓÊÕ
 	}
@@ -114,23 +116,38 @@ public class MusicService extends Service implements OnPreparedListener,
 				}
 			}else if (intent.getAction().equals(Constants.ACTION_NEXT)) {
 				Log.i("---"+TAG,"action_next" );
-				if (position < mp3Infos.size() -1 ) {
-					prepareMusic(position+1);
-					++position;
-				}else {
-					prepareMusic(0);
-					position = 0;
+				if ((Myapp.state % 3) ==1 || ((Myapp.state % 3) == 2)) {
+					if (position < mp3Infos.size() - 1) {
+						++position;
+						prepareMusic(position);
+					} else {
+						position = 0;
+						prepareMusic(0);
+					}
+				}else if ((Myapp.state % 3) == 0) {
+					Myapp.getRandom();
+					position = Myapp.position;
+					prepareMusic(position);
 				}
+				
 				
 			}else if (intent.getAction().equals(Constants.ACTION_PRV)) {
 				Log.i("---"+TAG,"action_prv" );
-				if (position == 0) {
-					prepareMusic(mp3Infos.size()-1);
-					position = mp3Infos.size()-1;
-				}else {
-					prepareMusic(position -1);
-					--position;
+				if ((Myapp.state % 3) ==1 || ((Myapp.state % 3) == 2)) {
+					if (position == 0 ) {
+						position = mp3Infos.size()-1;
+						prepareMusic(position);
+					} else {
+						--position;
+						prepareMusic(position);
+					}
+				}else if ((Myapp.state % 3) == 0) {
+					Myapp.getRandom();
+					position = Myapp.position;
+					prepareMusic(position);
 				}
+				
+				
 			}
 		}
 
@@ -159,9 +176,14 @@ public class MusicService extends Service implements OnPreparedListener,
 	@Override
 	public void onCompletion(MediaPlayer arg0) {
 		Log.i("music service", "oncompletion");
-		Intent intent = new Intent();
-		intent.setAction(Constants.ACTION_NEXT);
-		sendBroadcast(intent);
+		if ((Myapp.state % 3) == 2) {
+			prepareMusic(position);
+		}else {
+			Intent intent = new Intent();
+			intent.setAction(Constants.ACTION_NEXT);
+			sendBroadcast(intent);
+		}
+		
 		
 	}
 

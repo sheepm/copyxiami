@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -92,6 +93,7 @@ public class MusicActivity extends Activity implements OnClickListener {
 		filter.addAction(Constants.ACTION_PAUSE);
 		filter.addAction(Constants.ACTION_PLAY);
 		filter.addAction(Constants.ACTION_PRV);
+		filter.setPriority(800);
 		receiver = new MusicReceiver();
 		registerReceiver(receiver, filter);
 	}
@@ -105,6 +107,7 @@ public class MusicActivity extends Activity implements OnClickListener {
 		mp3Infos = MediaUtil.getMp3Infos(getApplicationContext());
 
 		mPlayState = (ImageView) findViewById(R.id.play_state);
+		mPlayState.setImageResource(playstyle[Myapp.state % 3]);
 		mMusicPrv = (ImageView) findViewById(R.id.music_prv);
 		mMusicPlay = (ImageView) findViewById(R.id.music_play);
 		if (Myapp.isPlay) {
@@ -152,11 +155,16 @@ public class MusicActivity extends Activity implements OnClickListener {
 			if (intent.getAction().equals(Constants.ACTION_NEXT)) {
 				Myapp.isPlay = true;
 				isFirst = false;
-				if (position < mp3Infos.size() - 1) {
-					++position;
-				} else {
-					position = 0;
+				if ((Myapp.state % 3) ==1 || (Myapp.state % 3)== 2) {
+					if (position < mp3Infos.size() - 1) {
+						++position;
+					} else {
+						position = 0;
+					}
+				}else if ((Myapp.state % 3) == 0) {
+					position = Myapp.position;
 				}
+				Log.i("---position", ""+position);
 				setMusicBg(position);
 				Message message = Message.obtain();
 				message.obj = mp3Infos.get(position);
@@ -178,10 +186,15 @@ public class MusicActivity extends Activity implements OnClickListener {
 			} else if (intent.getAction().equals(Constants.ACTION_PRV)) {
 				Myapp.isPlay = true;
 				isFirst = false;
-				if (position == 0) {
-					position = mp3Infos.size()-1;
-				}else {
-					--position;
+				
+				if ((Myapp.state % 3) ==1 || (Myapp.state % 3)== 2) {
+					if (position == 0) {
+						position = mp3Infos.size()-1;
+					} else {
+						--position ;
+					}
+				}else if ((Myapp.state % 3) == 0) {
+					position = Myapp.position;
 				}
 				setMusicBg(position);
 				Message message = Message.obtain();

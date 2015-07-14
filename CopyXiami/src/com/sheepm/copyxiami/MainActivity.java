@@ -150,6 +150,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		filter.addAction(Constants.ACTION_PLAY);
 		filter.addAction(Constants.ACTION_NEXT);
 		filter.addAction(Constants.ACTION_PRV);
+		filter.setPriority(700);
 		receiver = new LocalMusicBroadcastReceiver();
 		registerReceiver(receiver, filter); // ×¢²á½ÓÊÕ
 	}
@@ -262,10 +263,14 @@ public class MainActivity extends Activity implements OnClickListener {
 			} else if (intent.getAction().equals(Constants.ACTION_NEXT)) {
 				Myapp.isPlay = true;
 				isFirst = false;
-				if (position < mp3Infos.size() - 1) {
-					++position;
-				} else {
-					position = 0;
+				if ((Myapp.state % 3) ==1 ||(Myapp.state % 3) == 2 ) {
+					if (position < mp3Infos.size() - 1) {
+						++position;
+					} else {
+						position = 0;
+					}
+				}else if ((Myapp.state % 3) == 0) {
+					position = Myapp.position;
 				}
 				Message message = Message.obtain();
 				message.obj = mp3Infos.get(position);
@@ -291,10 +296,14 @@ public class MainActivity extends Activity implements OnClickListener {
 				setNotification();
 			}else if (intent.getAction().equals(Constants.ACTION_PRV)) {
 				Myapp.isPlay = true;
-				if (position == 0) {
-					position = mp3Infos.size()-1;
-				}else {
-					--position;
+				if ((Myapp.state % 3) ==1 || (Myapp.state % 3)== 2) {
+					if (position == 0) {
+						position = mp3Infos.size()-1;
+					} else {
+						--position ;
+					}
+				}else if ((Myapp.state % 3) == 0) {
+					position = Myapp.position;
 				}
 				
 				Message message = Message.obtain();

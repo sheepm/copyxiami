@@ -36,10 +36,13 @@ import com.sheepm.Utils.Constants;
 import com.sheepm.Utils.MediaUtil;
 import com.sheepm.Utils.SlidingMenu;
 import com.sheepm.activity.MusicActivity;
+import com.sheepm.application.Myapp;
 import com.sheepm.bean.Mp3Info;
 import com.sheepm.fragment.MainFragment;
 
 public class MainActivity extends Activity implements OnClickListener {
+	
+	private String TAG = "MainActivity";
 
 	private SlidingMenu menu;
 	private ListView mMenulist;
@@ -65,7 +68,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	private boolean isFirst = true;
 	private int position;
 
-	private boolean isPlay = false;
+//	private boolean isPlay = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -178,14 +181,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		remoteViews.setOnClickPendingIntent(R.id.widget_prev, intent_prev);
 
 		// …Ë÷√≤•∑≈
-		if (isPlay) {
+		if (Myapp.isPlay) {
 			Intent playorpause = new Intent();
 			playorpause.setAction(Constants.ACTION_PAUSE);
 			PendingIntent intent_play = PendingIntent.getBroadcast(this, 2,
 					playorpause, PendingIntent.FLAG_UPDATE_CURRENT);
 			remoteViews.setOnClickPendingIntent(R.id.widget_play, intent_play);
 		}
-		if (!isPlay) {
+		if (!Myapp.isPlay) {
 			Intent playorpause = new Intent();
 			playorpause.setAction(Constants.ACTION_PLAY);
 			PendingIntent intent_play = PendingIntent.getBroadcast(this, 6,
@@ -228,7 +231,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Constants.ACTION_LIST_SEARCH)) {
 				position = intent.getIntExtra("position", 0);
-				isPlay= true;
+				Myapp.isPlay= true;
 				long id = intent.getLongExtra("id", 0);
 				for (int i = 0; i < mp3Infos.size(); i++) {
 					if (id == mp3Infos.get(i).getId()) {
@@ -241,22 +244,22 @@ public class MainActivity extends Activity implements OnClickListener {
 			} else if (intent.getAction().equals(Constants.ACTION_PLAY)) {
 				if (isFirst) {
 					isFirst = false;
-					isPlay = true;
+					Myapp.isPlay = true;
 					Message message = Message.obtain();
 					message.obj = mp3Infos.get(intent
 							.getIntExtra("position", 0));
 					handler.sendMessage(message);
 					
 				}else{
-					isPlay = true;
+					Myapp.isPlay = true;
 					Message message = Message.obtain();
-					message.obj = isPlay;
+					message.obj = Myapp.isPlay;
 					handler2.sendMessage(message);
 					setNotification();
 				}
 			
 			} else if (intent.getAction().equals(Constants.ACTION_NEXT)) {
-				isPlay = true;
+				Myapp.isPlay = true;
 				isFirst = false;
 				if (position < mp3Infos.size() - 1) {
 					++position;
@@ -268,11 +271,11 @@ public class MainActivity extends Activity implements OnClickListener {
 				handler.sendMessage(message);
 				
 				Message message2 = Message.obtain();
-				message2.obj = isPlay;
+				message2.obj = Myapp.isPlay;
 				handler2.sendMessage(message2);
 			
 			} else if (intent.getAction().equals(Constants.ACTION_PAUSE)) {
-				isPlay = false;
+				Myapp.isPlay = false;
 				isFirst = false;
 				
 				
@@ -281,12 +284,12 @@ public class MainActivity extends Activity implements OnClickListener {
 				handler.sendMessage(message);
 				
 				Message message2 = Message.obtain();
-				message2.obj = isPlay;
+				message2.obj = Myapp.isPlay;
 				handler2.sendMessage(message2);
 				
 				setNotification();
 			}else if (intent.getAction().equals(Constants.ACTION_PRV)) {
-				isPlay = true;
+				Myapp.isPlay = true;
 				if (position == 0) {
 					position = mp3Infos.size()-1;
 				}else {
@@ -298,7 +301,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				handler.sendMessage(message);
 				
 				Message message2 = Message.obtain();
-				message2.obj = isPlay;
+				message2.obj = Myapp.isPlay;
 				handler2.sendMessage(message2);
 			}
 		}
@@ -326,7 +329,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			remoteViews.setImageViewBitmap(R.id.widget_album, bitmap);
 			remoteViews.setTextViewText(R.id.widget_title, info.getTitle());
 			remoteViews.setTextViewText(R.id.widget_artist, info.getArtist());
-			if (isPlay) {
+			if (Myapp.isPlay) {
 				remoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_btn_pause_normal);
 			}else {
 				remoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_btn_play_normal);
@@ -418,7 +421,11 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onDestroy() {
+		Log.i("---"+TAG, "ondestory");
 		super.onDestroy();
+		if (remoteViews != null) {
+			manager.cancel(100);
+		}
 		if (receiver != null) {
 			unregisterReceiver(receiver);
 		}

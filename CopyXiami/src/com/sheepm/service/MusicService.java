@@ -20,6 +20,8 @@ import android.util.Log;
 public class MusicService extends Service implements OnPreparedListener,
 		OnCompletionListener {
 
+	private String TAG = "MusicService";
+	
 	private MediaPlayer player;
 	private MyBroadcastReceiver receiver;
 	private List<Mp3Info> mp3Infos;
@@ -83,6 +85,7 @@ public class MusicService extends Service implements OnPreparedListener,
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Constants.ACTION_LIST_SEARCH)) {
+				Log.i("---"+TAG,"action_list_search" );
 				long id = intent.getLongExtra("id", 0);
 				for (int i = 0; i < mp3Infos.size(); i++) {
 					if (id == mp3Infos.get(i).getId()) {
@@ -93,10 +96,12 @@ public class MusicService extends Service implements OnPreparedListener,
 					}
 				}
 			} else if (intent.getAction().equals(Constants.ACTION_PAUSE)) {
+				Log.i("---"+TAG,"action_pause" );
 				if (player.isPlaying()) {
 					pauseMusic();
 				}
 			} else if (intent.getAction().equals(Constants.ACTION_PLAY)) {
+				Log.i("---"+TAG,"action_play" );
 				if (!player.isPlaying()) {
 					if (isFirst) {
 						position = intent.getIntExtra("position", 0);
@@ -108,6 +113,7 @@ public class MusicService extends Service implements OnPreparedListener,
 					}
 				}
 			}else if (intent.getAction().equals(Constants.ACTION_NEXT)) {
+				Log.i("---"+TAG,"action_next" );
 				if (position < mp3Infos.size() -1 ) {
 					prepareMusic(position+1);
 					++position;
@@ -117,6 +123,7 @@ public class MusicService extends Service implements OnPreparedListener,
 				}
 				
 			}else if (intent.getAction().equals(Constants.ACTION_PRV)) {
+				Log.i("---"+TAG,"action_prv" );
 				if (position == 0) {
 					prepareMusic(mp3Infos.size()-1);
 					position = mp3Infos.size()-1;

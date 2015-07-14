@@ -17,6 +17,8 @@ public class Myapp extends Application {
 	
 	private List<Mp3Info> infos;
 	
+	public static boolean isPlay = false;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();

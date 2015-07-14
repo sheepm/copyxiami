@@ -1,5 +1,7 @@
 package com.sheepm.copyxiami;
 
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -85,7 +87,6 @@ public class MainActivity extends Activity implements OnClickListener {
 	private void initView() {
 		menu = (SlidingMenu) findViewById(R.id.id_menu);
 		mLayout = (LinearLayout) findViewById(R.id.main);
-
 		mMenulist = (ListView) findViewById(R.id.listView1);
 		// …Ë÷√listviewµƒÕ∑
 		mMenulist.addHeaderView(LayoutInflater.from(this).inflate(
@@ -378,6 +379,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		case R.id.btm_linear:
 			Intent intent = new Intent();
+			intent.putExtra("position", position);
 			intent.setClass(MainActivity.this, MusicActivity.class);
 			startActivity(intent);
 
@@ -413,11 +415,11 @@ public class MainActivity extends Activity implements OnClickListener {
 			broadcast.setAction(Constants.ACTION_NEXT);
 			sendBroadcast(broadcast);
 			break;
-
 		default:
 			break;
 		}
 	}
+
 
 	@Override
 	protected void onDestroy() {

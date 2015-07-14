@@ -19,6 +19,9 @@ public class Myapp extends Application {
 	
 	public static boolean isPlay = false;
 	
+	public static int state =2;
+	
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();

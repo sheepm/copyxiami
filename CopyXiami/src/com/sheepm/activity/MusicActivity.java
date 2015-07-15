@@ -2,13 +2,9 @@ package com.sheepm.activity;
 
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,15 +15,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Builder;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.sheepm.Utils.Constants;
@@ -35,7 +28,6 @@ import com.sheepm.Utils.MediaUtil;
 import com.sheepm.Utils.OtherUtil;
 import com.sheepm.application.Myapp;
 import com.sheepm.bean.Mp3Info;
-import com.sheepm.copyxiami.MainActivity;
 import com.sheepm.copyxiami.R;
 import com.sheepm.fragment.LyricFragment;
 
@@ -65,11 +57,9 @@ public class MusicActivity extends Activity implements OnClickListener {
 
 	private Toast mToast;
 	
-	private NotificationManager manager;
-	private RemoteViews remoteViews;
-	
 	private boolean isFirst = true;
 	private int position = -1;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

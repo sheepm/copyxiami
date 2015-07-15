@@ -22,7 +22,7 @@ public class MusicService extends Service implements OnPreparedListener,
 		OnCompletionListener {
 
 	private String TAG = "MusicService";
-	
+
 	private MediaPlayer player;
 	private MyBroadcastReceiver receiver;
 	private List<Mp3Info> mp3Infos;
@@ -47,6 +47,7 @@ public class MusicService extends Service implements OnPreparedListener,
 		filter.addAction(Constants.ACTION_PLAY);
 		filter.addAction(Constants.ACTION_NEXT);
 		filter.addAction(Constants.ACTION_PRV);
+		filter.addAction("android.intent.action.HEADSET_PLUG");
 		filter.setPriority(1000);
 		receiver = new MyBroadcastReceiver();
 		registerReceiver(receiver, filter); // 注册接收
@@ -61,7 +62,7 @@ public class MusicService extends Service implements OnPreparedListener,
 	public void onDestroy() {
 		Log.i("music service", "ondestroy");
 		super.onDestroy();
-		if (receiver!=null) {
+		if (receiver != null) {
 			unregisterReceiver(receiver); // 服务终止时解绑
 		}
 		if (player != null) {
@@ -87,7 +88,7 @@ public class MusicService extends Service implements OnPreparedListener,
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Constants.ACTION_LIST_SEARCH)) {
-				Log.i("---"+TAG,"action_list_search" );
+				Log.i("---" + TAG, "action_list_search");
 				long id = intent.getLongExtra("id", 0);
 				for (int i = 0; i < mp3Infos.size(); i++) {
 					if (id == mp3Infos.get(i).getId()) {
@@ -98,25 +99,25 @@ public class MusicService extends Service implements OnPreparedListener,
 					}
 				}
 			} else if (intent.getAction().equals(Constants.ACTION_PAUSE)) {
-				Log.i("---"+TAG,"action_pause" );
+				Log.i("---" + TAG, "action_pause");
 				if (player.isPlaying()) {
 					pauseMusic();
 				}
 			} else if (intent.getAction().equals(Constants.ACTION_PLAY)) {
-				Log.i("---"+TAG,"action_play" );
+				Log.i("---" + TAG, "action_play");
 				if (!player.isPlaying()) {
 					if (isFirst) {
 						position = intent.getIntExtra("position", 0);
 						prepareMusic(position);
-						isFirst  =false;
-					}else {
+						isFirst = false;
+					} else {
 						player.seekTo(current);
 						player.start();
 					}
 				}
-			}else if (intent.getAction().equals(Constants.ACTION_NEXT)) {
-				Log.i("---"+TAG,"action_next" );
-				if ((Myapp.state % 3) ==1 || ((Myapp.state % 3) == 2)) {
+			} else if (intent.getAction().equals(Constants.ACTION_NEXT)) {
+				Log.i("---" + TAG, "action_next");
+				if ((Myapp.state % 3) == 1 || ((Myapp.state % 3) == 2)) {
 					if (position < mp3Infos.size() - 1) {
 						++position;
 						prepareMusic(position);
@@ -124,30 +125,39 @@ public class MusicService extends Service implements OnPreparedListener,
 						position = 0;
 						prepareMusic(0);
 					}
-				}else if ((Myapp.state % 3) == 0) {
+				} else if ((Myapp.state % 3) == 0) {
 					Myapp.getRandom();
 					position = Myapp.position;
 					prepareMusic(position);
 				}
-				
-				
-			}else if (intent.getAction().equals(Constants.ACTION_PRV)) {
-				Log.i("---"+TAG,"action_prv" );
-				if ((Myapp.state % 3) ==1 || ((Myapp.state % 3) == 2)) {
-					if (position == 0 ) {
-						position = mp3Infos.size()-1;
+
+			} else if (intent.getAction().equals(Constants.ACTION_PRV)) {
+				Log.i("---" + TAG, "action_prv");
+				if ((Myapp.state % 3) == 1 || ((Myapp.state % 3) == 2)) {
+					if (position == 0) {
+						position = mp3Infos.size() - 1;
 						prepareMusic(position);
 					} else {
 						--position;
 						prepareMusic(position);
 					}
-				}else if ((Myapp.state % 3) == 0) {
+				} else if ((Myapp.state % 3) == 0) {
 					Myapp.getRandom();
 					position = Myapp.position;
 					prepareMusic(position);
 				}
-				
-				
+
+			} else if (intent.getAction().equals(
+					"android.intent.action.HEADSET_PLUG")) {
+				//如果耳机拨出时暂停播放
+				if (intent.hasExtra("state")) {
+					if (intent.getIntExtra("state", 0) == 0) {
+						Intent intent2 = new Intent();
+						intent2.setAction(Constants.ACTION_PAUSE);
+						sendBroadcast(intent2);
+					}
+				}
+
 			}
 		}
 
@@ -178,13 +188,12 @@ public class MusicService extends Service implements OnPreparedListener,
 		Log.i("music service", "oncompletion");
 		if ((Myapp.state % 3) == 2) {
 			prepareMusic(position);
-		}else {
+		} else {
 			Intent intent = new Intent();
 			intent.setAction(Constants.ACTION_NEXT);
 			sendBroadcast(intent);
 		}
-		
-		
+
 	}
 
 	/**

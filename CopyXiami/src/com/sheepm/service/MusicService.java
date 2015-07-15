@@ -47,7 +47,7 @@ public class MusicService extends Service implements OnPreparedListener,
 		filter.addAction(Constants.ACTION_PLAY);
 		filter.addAction(Constants.ACTION_NEXT);
 		filter.addAction(Constants.ACTION_PRV);
-		filter.addAction("android.intent.action.HEADSET_PLUG");
+		filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
 		filter.setPriority(1000);
 		receiver = new MyBroadcastReceiver();
 		registerReceiver(receiver, filter); // 注册接收
@@ -148,15 +148,13 @@ public class MusicService extends Service implements OnPreparedListener,
 				}
 
 			} else if (intent.getAction().equals(
-					"android.intent.action.HEADSET_PLUG")) {
+					AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
 				//如果耳机拨出时暂停播放
-				if (intent.hasExtra("state")) {
-					if (intent.getIntExtra("state", 0) == 0) {
+					if (intent.getIntExtra("state", 0) == 0 ) {
 						Intent intent2 = new Intent();
 						intent2.setAction(Constants.ACTION_PAUSE);
 						sendBroadcast(intent2);
 					}
-				}
 
 			}
 		}

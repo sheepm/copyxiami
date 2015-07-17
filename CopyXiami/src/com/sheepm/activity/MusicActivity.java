@@ -12,8 +12,10 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +23,9 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
 
 import com.sheepm.Utils.Constants;
@@ -30,6 +35,7 @@ import com.sheepm.application.Myapp;
 import com.sheepm.bean.Mp3Info;
 import com.sheepm.copyxiami.R;
 import com.sheepm.fragment.LyricFragment;
+import com.sheepm.service.MusicService;
 
 /**
  * 显示歌词的activity
@@ -37,13 +43,16 @@ import com.sheepm.fragment.LyricFragment;
  * @author sheepm
  * 
  */
-public class MusicActivity extends Activity implements OnClickListener {
+public class MusicActivity extends Activity implements OnClickListener,
+		OnSeekBarChangeListener {
+
+	private static final String Tag = "MusicActivity";
 
 	private ImageView mPlayState;
 	private ImageView mMusicPrv;
 	private ImageView mMusicPlay;
 	private ImageView mMusicNext;
-	
+
 	private MusicReceiver receiver;
 
 	private int[] playstyle = new int[] { R.drawable.state_random,
@@ -56,10 +65,16 @@ public class MusicActivity extends Activity implements OnClickListener {
 	private LinearLayout mLinearMusic;
 
 	private Toast mToast;
-	
+
 	private boolean isFirst = true;
-	private int position = -1;
-	
+	private int position;
+
+	private SeekBar mSeekBar;
+	private long mDuration = 0;
+
+	private TextView mTxtDuration;
+	private TextView mTexting;
+	boolean isTrue = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +86,7 @@ public class MusicActivity extends Activity implements OnClickListener {
 		registerListener();
 		setMusicBg(position);
 		setDefaultFragment();
+		new LooperThread().start(); // 异步线程更新ui
 	}
 
 	/**
@@ -78,13 +94,14 @@ public class MusicActivity extends Activity implements OnClickListener {
 	 */
 	private void regFilter() {
 		IntentFilter filter = new IntentFilter();
+		receiver = new MusicReceiver();
 		filter.addAction(Constants.ACTION_LIST_SEARCH);
 		filter.addAction(Constants.ACTION_NEXT);
 		filter.addAction(Constants.ACTION_PAUSE);
 		filter.addAction(Constants.ACTION_PLAY);
 		filter.addAction(Constants.ACTION_PRV);
+		filter.addAction(Constants.ACTION_SEEK);
 		filter.setPriority(800);
-		receiver = new MusicReceiver();
 		registerReceiver(receiver, filter);
 	}
 
@@ -93,19 +110,22 @@ public class MusicActivity extends Activity implements OnClickListener {
 	 */
 	private void initView() {
 		mLinearMusic = (LinearLayout) findViewById(R.id.linear_music);
-		position = this.getIntent().getIntExtra("position", -1);
+		position = this.getIntent().getIntExtra("position", 10000);
 		mp3Infos = MediaUtil.getMp3Infos(getApplicationContext());
-
+		mSeekBar = (SeekBar) findViewById(R.id.seekBar1);
+		mTxtDuration = (TextView) findViewById(R.id.text_duration);
+		mTexting = (TextView) findViewById(R.id.texting);
 		mPlayState = (ImageView) findViewById(R.id.play_state);
 		mPlayState.setImageResource(playstyle[Myapp.state % 3]);
 		mMusicPrv = (ImageView) findViewById(R.id.music_prv);
 		mMusicPlay = (ImageView) findViewById(R.id.music_play);
 		if (Myapp.isPlay) {
 			mMusicPlay.setImageResource(R.drawable.lock_suspend);
-		}else {
+		} else {
 			mMusicPlay.setImageResource(R.drawable.lock_play);
 		}
 		mMusicNext = (ImageView) findViewById(R.id.music_next);
+
 	}
 
 	/**
@@ -116,6 +136,7 @@ public class MusicActivity extends Activity implements OnClickListener {
 		mMusicPrv.setOnClickListener(this);
 		mMusicPlay.setOnClickListener(this);
 		mMusicNext.setOnClickListener(this);
+		mSeekBar.setOnSeekBarChangeListener(this);
 	}
 
 	/**
@@ -126,9 +147,12 @@ public class MusicActivity extends Activity implements OnClickListener {
 		long song_id = mp3Infos.get(position2).getId();
 		Bitmap artwork = MediaUtil.getArtwork(getApplicationContext(), song_id,
 				album_id, true, false);
-		Bitmap bitmap = OtherUtil.fastblur(artwork, 50);
+		Bitmap bitmap = OtherUtil.fastblur(artwork, 40);
 		Drawable drawable = new BitmapDrawable(bitmap);
 		mLinearMusic.setBackgroundDrawable(drawable);
+		mDuration = mp3Infos.get(position2).getDuration();
+		mTxtDuration.setText(MediaUtil.formatTime(mDuration));
+
 	}
 
 	private void setDefaultFragment() {
@@ -145,16 +169,16 @@ public class MusicActivity extends Activity implements OnClickListener {
 			if (intent.getAction().equals(Constants.ACTION_NEXT)) {
 				Myapp.isPlay = true;
 				isFirst = false;
-				if ((Myapp.state % 3) ==1 || (Myapp.state % 3)== 2) {
+				if ((Myapp.state % 3) == 1 || (Myapp.state % 3) == 2) {
 					if (position < mp3Infos.size() - 1) {
 						++position;
 					} else {
 						position = 0;
 					}
-				}else if ((Myapp.state % 3) == 0) {
+				} else if ((Myapp.state % 3) == 0) {
 					position = Myapp.position;
 				}
-				Log.i("---position", ""+position);
+				Log.i("---position", "" + position);
 				setMusicBg(position);
 				Message message = Message.obtain();
 				message.obj = mp3Infos.get(position);
@@ -171,35 +195,42 @@ public class MusicActivity extends Activity implements OnClickListener {
 					message.obj = mp3Infos.get(intent
 							.getIntExtra("position", 0));
 					handler.sendMessage(message);
-					
+
 				}
 			} else if (intent.getAction().equals(Constants.ACTION_PRV)) {
 				Myapp.isPlay = true;
 				isFirst = false;
-				
-				if ((Myapp.state % 3) ==1 || (Myapp.state % 3)== 2) {
+
+				if ((Myapp.state % 3) == 1 || (Myapp.state % 3) == 2) {
 					if (position == 0) {
-						position = mp3Infos.size()-1;
+						position = mp3Infos.size() - 1;
 					} else {
-						--position ;
+						--position;
 					}
-				}else if ((Myapp.state % 3) == 0) {
+				} else if ((Myapp.state % 3) == 0) {
 					position = Myapp.position;
 				}
 				setMusicBg(position);
 				Message message = Message.obtain();
 				message.obj = mp3Infos.get(position);
 				handler.sendMessage(message);
+			} else if (intent.getAction().equals(Constants.ACTION_SEEK)) {
+				int progress = intent.getIntExtra("progress", 0);
+				Log.i("---" + Tag, "" + progress);
+				long duration = MusicService.getDuration();
+				Log.i("---" + Tag, "" + duration);
+				int to = progress * (int) duration / 100;
+				Log.i("---" + Tag, "" + to);
+				MusicService.player.seekTo(to);
 			}
 		}
 
 	}
-	
-	
+
 	/**
-	 * 
+	 * 设置播放按钮的状态
 	 */
-	public Handler handler = new Handler() {
+	private Handler handler = new Handler() {
 
 		public void handleMessage(android.os.Message msg) {
 
@@ -208,12 +239,49 @@ public class MusicActivity extends Activity implements OnClickListener {
 					info.getId(), info.getAlbumId(), true, false);
 			if (Myapp.isPlay) {
 				mMusicPlay.setImageResource(R.drawable.lock_suspend);
-			}else {
+			} else {
 				mMusicPlay.setImageResource(R.drawable.lock_play);
 			}
+			long duration = info.getDuration();
+			String text = MediaUtil.formatTime(duration);
+			mTxtDuration.setText(text);
 
 		};
 	};
+
+	private Handler handler2 = new Handler() {
+
+		public void handleMessage(Message msg) {
+
+			if (MusicService.isPlaying) {
+				long current = MusicService.getCurrent();
+				long duration = MusicService.getDuration();
+				String text_current = MediaUtil.formatTime(current);
+				mTexting.setText(text_current);
+				long a = 100L * current / duration;
+				int progress = new Long(a).intValue();
+				mSeekBar.setProgress(progress);
+			}
+		};
+
+	};
+
+	class LooperThread extends Thread {
+
+		@Override
+		public void run() {
+
+			while (isTrue) {
+				try {
+					handler2.sendMessage(new Message());
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+	}
 
 	@Override
 	public void onClick(View view) {
@@ -246,25 +314,21 @@ public class MusicActivity extends Activity implements OnClickListener {
 			if (mMusicPlay
 					.getDrawable()
 					.getConstantState()
-					.equals(getResources().getDrawable(
-							R.drawable.lock_suspend)
+					.equals(getResources().getDrawable(R.drawable.lock_suspend)
 							.getConstantState())) {
 				Intent broadcast = new Intent();
 				broadcast.setAction(Constants.ACTION_PAUSE);
 				sendBroadcast(broadcast);
-				mMusicPlay
-						.setImageResource(R.drawable.lock_play);
+				mMusicPlay.setImageResource(R.drawable.lock_play);
 			} else if (mMusicPlay
 					.getDrawable()
 					.getConstantState()
-					.equals(getResources().getDrawable(
-							R.drawable.lock_play)
+					.equals(getResources().getDrawable(R.drawable.lock_play)
 							.getConstantState())) {
 				Intent broadcast = new Intent();
 				broadcast.setAction(Constants.ACTION_PLAY);
 				sendBroadcast(broadcast);
-				mMusicPlay
-						.setImageResource(R.drawable.lock_suspend);
+				mMusicPlay.setImageResource(R.drawable.lock_suspend);
 			}
 			break;
 
@@ -288,6 +352,36 @@ public class MusicActivity extends Activity implements OnClickListener {
 			mToast.setText(text);
 			mToast.show();
 		}
+	}
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+		// Log.i("---" + Tag, "" + MusicService.getCurrent());
+		// Log.i("---" + Tag, "" + MusicService.getDuration());
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		int progress = seekBar.getProgress();
+		Log.i("---" + Tag, "" + progress);
+		Intent intent = new Intent();
+		intent.setAction(Constants.ACTION_SEEK);
+		intent.putExtra("progress", progress);
+		sendBroadcast(intent);
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		// 按返回键时将isTrue设为false，让线程不再继续
+		isTrue = false;
+		finish();
 	}
 
 }

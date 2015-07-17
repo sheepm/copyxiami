@@ -37,7 +37,7 @@ public class MediaUtil {
 	public static List<Mp3Info> getMp3Infos(Context context) {
 		Cursor cursor = context.getContentResolver().query(
 				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
-				MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+				MediaStore.Audio.Media .DEFAULT_SORT_ORDER);
 
 		List<Mp3Info> mp3Infos = new ArrayList<Mp3Info>();
 		for (int i = 0; i < cursor.getCount(); i++) {

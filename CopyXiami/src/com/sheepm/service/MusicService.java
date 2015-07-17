@@ -1,5 +1,6 @@
 package com.sheepm.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.sheepm.Utils.Constants;
@@ -23,18 +24,39 @@ public class MusicService extends Service implements OnPreparedListener,
 
 	private String TAG = "MusicService";
 
-	private MediaPlayer player;
+	public static MediaPlayer player;
 	private MyBroadcastReceiver receiver;
 	private List<Mp3Info> mp3Infos;
 	private int position;
 	private boolean isFirst = true;
-	private int current;
+	public static int current;
+	private static int duration = 0;
+	public static boolean isPlaying;
 
 	@Override
 	public void onCreate() {
 		Log.i("music service", "oncreate");
 		super.onCreate();
 		regFilter();
+	}
+	
+	/**
+	 * 返回当前的current
+	 * @return
+	 */
+	public static int getCurrent(){
+		current = player.getCurrentPosition();
+		
+		return current;
+	}
+	
+	/**
+	 * 返回总共的长度
+	 * @return
+	 */
+	public static int getDuration(){
+		duration = player.getDuration();
+		return duration;
 	}
 
 	/*
@@ -88,6 +110,7 @@ public class MusicService extends Service implements OnPreparedListener,
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Constants.ACTION_LIST_SEARCH)) {
+				isPlaying = true;
 				Log.i("---" + TAG, "action_list_search");
 				long id = intent.getLongExtra("id", 0);
 				for (int i = 0; i < mp3Infos.size(); i++) {
@@ -99,11 +122,13 @@ public class MusicService extends Service implements OnPreparedListener,
 					}
 				}
 			} else if (intent.getAction().equals(Constants.ACTION_PAUSE)) {
+				isPlaying = false;
 				Log.i("---" + TAG, "action_pause");
 				if (player.isPlaying()) {
 					pauseMusic();
 				}
 			} else if (intent.getAction().equals(Constants.ACTION_PLAY)) {
+				isPlaying = true;
 				Log.i("---" + TAG, "action_play");
 				if (!player.isPlaying()) {
 					if (isFirst) {
@@ -116,6 +141,7 @@ public class MusicService extends Service implements OnPreparedListener,
 					}
 				}
 			} else if (intent.getAction().equals(Constants.ACTION_NEXT)) {
+				isPlaying = true;
 				Log.i("---" + TAG, "action_next");
 				if ((Myapp.state % 3) == 1 || ((Myapp.state % 3) == 2)) {
 					if (position < mp3Infos.size() - 1) {
@@ -132,6 +158,7 @@ public class MusicService extends Service implements OnPreparedListener,
 				}
 
 			} else if (intent.getAction().equals(Constants.ACTION_PRV)) {
+				isPlaying = true;
 				Log.i("---" + TAG, "action_prv");
 				if ((Myapp.state % 3) == 1 || ((Myapp.state % 3) == 2)) {
 					if (position == 0) {
@@ -149,6 +176,7 @@ public class MusicService extends Service implements OnPreparedListener,
 
 			} else if (intent.getAction().equals(
 					AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
+				isPlaying = false;
 				//如果耳机拨出时暂停播放
 					if (intent.getIntExtra("state", 0) == 0 ) {
 						Intent intent2 = new Intent();
@@ -204,8 +232,8 @@ public class MusicService extends Service implements OnPreparedListener,
 	}
 
 	public void pauseMusic() {
-		Log.i("pause", "pause");
-		player.pause();
 		current = player.getCurrentPosition();
+		player.pause();
+		Log.i("---pause", "pause"+current);
 	}
 }

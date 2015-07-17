@@ -1,7 +1,5 @@
 package com.sheepm.copyxiami;
 
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -68,7 +66,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 
 	private boolean isFirst = true;
-	private int position;
+	private int position ;
 
 //	private boolean isPlay = false;
 
@@ -105,7 +103,6 @@ public class MainActivity extends Activity implements OnClickListener {
 		mp3Infos = MediaUtil.getMp3Infos(this);
 
 		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
 
 	}
 

@@ -14,5 +14,7 @@ public class Constants {
 	public static String ACTION_NEXT = "com.sheepm.xiami.next";
 	//上一曲
 	public static String ACTION_PRV = "com.sheepm.xiami.prv";
+	//seekbar手动控制
+	public static String ACTION_SEEK ="com.sheepm.xiami.seek";
 
 }

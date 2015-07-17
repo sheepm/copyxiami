@@ -3,13 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-    
-      <TextView 
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="还没有选择歌曲哦"
-        android:gravity="center"/>
-    
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="纯 音 乐"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp" />
+
+  
 
 </LinearLayout>

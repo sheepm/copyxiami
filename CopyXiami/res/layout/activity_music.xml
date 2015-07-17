@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#666666"
+    android:fitsSystemWindows="true"  
     android:orientation="vertical" >
 
     <LinearLayout
@@ -47,12 +48,23 @@
             android:src="@drawable/global_title_similar_normal" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/display"
+    <ImageView
+        android:id="@+id/album_img"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center"
+      />
+
+    <TextView
+        android:id="@+id/text_title"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
-    </FrameLayout>
+        android:layout_weight="1"
+        android:gravity="center"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="#E5E5E5"
+        android:textSize="20sp" />
 
     <SeekBar
         android:id="@+id/seekBar1"
@@ -61,8 +73,8 @@
         android:max="100"
         android:maxHeight="1dp"
         android:minHeight="1dp"
-        android:progress="0"
         android:padding="0dp"
+        android:progress="0"
         android:progressDrawable="@drawable/seek_horizontal"
         android:thumb="@drawable/iconfont_yuan" />
 
@@ -75,24 +87,22 @@
             android:id="@+id/texting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00.00"
             android:layout_marginLeft="5dp"
+            android:text="00.00"
             android:textColor="#FFFFFF" />
-        
-        <TextView 
+
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            />
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/text_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00.00"
             android:layout_marginRight="5dp"
+            android:text="00.00"
             android:textColor="#FFFFFF" />
-
     </LinearLayout>
 
     <LinearLayout

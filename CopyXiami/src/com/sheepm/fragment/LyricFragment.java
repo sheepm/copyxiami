@@ -24,30 +24,8 @@ public class LyricFragment extends Fragment{
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.fragment_lyric, container, false);
-//		initView();
 		return view;
 	}
 
-//	private void initView() {
-//		mSeekBar = (SeekBar) view.findViewById(R.id.seekBar1);
-//		mSeekBar.setOnSeekBarChangeListener(this);
-//	}
-
-
-//	@Override
-//	public void onProgressChanged(SeekBar seekBar, int progress,
-//			boolean fromUser) {
-//		Log.i("---"+TAG, "onProgressChanged" + progress);
-//	}
-//
-//	@Override
-//	public void onStartTrackingTouch(SeekBar seekBar) {
-//		Log.i("---"+TAG, "onStartTrackingTouch");
-//	}
-//
-//	@Override
-//	public void onStopTrackingTouch(SeekBar seekBar) {
-//		Log.i("---"+TAG, "onStopTrackingTouch");
-//	}
 
 }

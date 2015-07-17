@@ -3,8 +3,6 @@ package com.sheepm.activity;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,20 +10,20 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sheepm.Utils.Constants;
@@ -34,7 +32,6 @@ import com.sheepm.Utils.OtherUtil;
 import com.sheepm.application.Myapp;
 import com.sheepm.bean.Mp3Info;
 import com.sheepm.copyxiami.R;
-import com.sheepm.fragment.LyricFragment;
 import com.sheepm.service.MusicService;
 
 /**
@@ -60,7 +57,7 @@ public class MusicActivity extends Activity implements OnClickListener,
 
 	private String[] playtext = new String[] { "随机播放", "列表循环", "单曲循环" };
 
-	private LyricFragment lyricFragment = new LyricFragment();
+//	private LyricFragment lyricFragment = new LyricFragment();
 	List<Mp3Info> mp3Infos;
 	private LinearLayout mLinearMusic;
 
@@ -75,17 +72,26 @@ public class MusicActivity extends Activity implements OnClickListener,
 	private TextView mTxtDuration;
 	private TextView mTexting;
 	boolean isTrue = true;
+	private ImageView mImgAlbum;
+	private TextView mTitle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {  
+            Window window = getWindow();  
+            //透明状态栏  
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);  
+            //透明导航栏  
+//            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);  
+        }    
 		setContentView(R.layout.activity_music);
 		initView();
 		regFilter();
 		registerListener();
 		setMusicBg(position);
-		setDefaultFragment();
+//		setDefaultFragment();
 		new LooperThread().start(); // 异步线程更新ui
 	}
 
@@ -111,6 +117,7 @@ public class MusicActivity extends Activity implements OnClickListener,
 	private void initView() {
 		mLinearMusic = (LinearLayout) findViewById(R.id.linear_music);
 		position = this.getIntent().getIntExtra("position", 10000);
+		Log.i("---"+Tag, "initview"+position);
 		mp3Infos = MediaUtil.getMp3Infos(getApplicationContext());
 		mSeekBar = (SeekBar) findViewById(R.id.seekBar1);
 		mTxtDuration = (TextView) findViewById(R.id.text_duration);
@@ -125,7 +132,8 @@ public class MusicActivity extends Activity implements OnClickListener,
 			mMusicPlay.setImageResource(R.drawable.lock_play);
 		}
 		mMusicNext = (ImageView) findViewById(R.id.music_next);
-
+		mTitle =(TextView) findViewById(R.id.text_title);
+		mImgAlbum = (ImageView) findViewById(R.id.album_img);
 	}
 
 	/**
@@ -143,6 +151,7 @@ public class MusicActivity extends Activity implements OnClickListener,
 	 * 设置该activity的背景
 	 */
 	private void setMusicBg(int position2) {
+		Log.i("---"+Tag, ""+ position2);
 		long album_id = mp3Infos.get(position2).getAlbumId();
 		long song_id = mp3Infos.get(position2).getId();
 		Bitmap artwork = MediaUtil.getArtwork(getApplicationContext(), song_id,
@@ -152,15 +161,16 @@ public class MusicActivity extends Activity implements OnClickListener,
 		mLinearMusic.setBackgroundDrawable(drawable);
 		mDuration = mp3Infos.get(position2).getDuration();
 		mTxtDuration.setText(MediaUtil.formatTime(mDuration));
-
+		mTitle.setText(mp3Infos.get(position2).getTitle());
+		mImgAlbum.setImageBitmap(artwork);
 	}
 
-	private void setDefaultFragment() {
-		FragmentManager manager = getFragmentManager();
-		FragmentTransaction transaction = manager.beginTransaction();
-		transaction.replace(R.id.display, lyricFragment);
-		transaction.commit();
-	}
+//	private void setDefaultFragment() {
+//		FragmentManager manager = getFragmentManager();
+//		FragmentTransaction transaction = manager.beginTransaction();
+//		transaction.replace(R.id.display, lyricFragment);
+//		transaction.commit();
+//	}
 
 	public class MusicReceiver extends BroadcastReceiver {
 
@@ -192,8 +202,7 @@ public class MusicActivity extends Activity implements OnClickListener,
 					isFirst = false;
 					Myapp.isPlay = true;
 					Message message = Message.obtain();
-					message.obj = mp3Infos.get(intent
-							.getIntExtra("position", 0));
+					message.obj = mp3Infos.get(position);
 					handler.sendMessage(message);
 
 				}
@@ -235,8 +244,8 @@ public class MusicActivity extends Activity implements OnClickListener,
 		public void handleMessage(android.os.Message msg) {
 
 			Mp3Info info = (Mp3Info) msg.obj;
-			Bitmap bitmap = MediaUtil.getArtwork(getApplicationContext(),
-					info.getId(), info.getAlbumId(), true, false);
+//			Bitmap bitmap = MediaUtil.getArtwork(getApplicationContext(),
+//					info.getId(), info.getAlbumId(), true, false);
 			if (Myapp.isPlay) {
 				mMusicPlay.setImageResource(R.drawable.lock_suspend);
 			} else {
@@ -245,7 +254,7 @@ public class MusicActivity extends Activity implements OnClickListener,
 			long duration = info.getDuration();
 			String text = MediaUtil.formatTime(duration);
 			mTxtDuration.setText(text);
-
+			mTitle.setText(info.getTitle());
 		};
 	};
 

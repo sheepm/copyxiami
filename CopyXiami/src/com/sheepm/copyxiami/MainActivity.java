@@ -386,6 +386,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		case R.id.btm_linear:
 			Intent intent = new Intent();
 			intent.putExtra("position", position);
+			Log.i("---"+TAG, ""+position);
 			intent.setClass(MainActivity.this, MusicActivity.class);
 			startActivity(intent);
 

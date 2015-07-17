@@ -126,10 +126,14 @@ public class OtherUtil {
                     vmin[x] = Math.min(x + radius + 1, wm);
                 }
                 p = pix[yw + vmin[x]];
-
-                sir[0] = (p & 0xff0000) >> 16;
-                sir[1] = (p & 0x00ff00) >> 8;
-                sir[2] = (p & 0x0000ff);
+//原版是0xFF0000 0x00FF00 0x0000FF 白色的专辑显示bug
+//                sir[0] = (p & 0x660000) >> 16;
+//                sir[1] = (p & 0x006600) >> 8;
+//                sir[2] = (p & 0x000066);
+                
+                sir[0] = (p & 0xAA0000) >> 16;
+                sir[1] = (p & 0x00AA00) >> 8;
+                sir[2] = (p & 0x0000AA);
 
                 rinsum += sir[0];
                 ginsum += sir[1];
@@ -189,7 +193,6 @@ public class OtherUtil {
             yi = x;
             stackpointer = radius;
             for (y = 0; y < h; y++) {
-                // Preserve alpha channel: ( 0xff000000 & pix[yi] )
                 pix[yi] = ( 0xff000000 & pix[yi] ) | ( dv[rsum] << 16 ) | ( dv[gsum] << 8 ) | dv[bsum];
 
                 rsum -= routsum;

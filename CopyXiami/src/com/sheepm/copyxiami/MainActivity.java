@@ -161,7 +161,6 @@ public class MainActivity extends Activity implements OnClickListener {
 		NotificationCompat.Builder builder = new Builder(this);
 
 		Intent intent = new Intent(this, MainActivity.class);
-
 		// 点击跳转到主界面
 		PendingIntent intent_go = PendingIntent.getActivity(this, 5, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
@@ -342,7 +341,6 @@ public class MainActivity extends Activity implements OnClickListener {
 				remoteViews.setImageViewResource(R.id.widget_play, R.drawable.widget_btn_play_normal);
 			}
 		
-
 			setNotification();
 		};
 	};

@@ -126,7 +126,7 @@ public class OtherUtil {
                     vmin[x] = Math.min(x + radius + 1, wm);
                 }
                 p = pix[yw + vmin[x]];
-//原版是0xFF0000 0x00FF00 0x0000FF 白色的专辑显示bug
+//原版是0xFF0000 0x00FF00 0x0000FF
 //                sir[0] = (p & 0x660000) >> 16;
 //                sir[1] = (p & 0x006600) >> 8;
 //                sir[2] = (p & 0x000066);

@@ -244,8 +244,6 @@ public class MusicActivity extends Activity implements OnClickListener,
 		public void handleMessage(android.os.Message msg) {
 
 			Mp3Info info = (Mp3Info) msg.obj;
-//			Bitmap bitmap = MediaUtil.getArtwork(getApplicationContext(),
-//					info.getId(), info.getAlbumId(), true, false);
 			if (Myapp.isPlay) {
 				mMusicPlay.setImageResource(R.drawable.lock_suspend);
 			} else {

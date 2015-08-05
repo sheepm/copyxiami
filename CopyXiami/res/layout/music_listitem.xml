@@ -32,7 +32,6 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:text="平凡之路"
                 android:textSize="16sp" />
 
             <LinearLayout
@@ -51,7 +50,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
-                    android:text="朴树"
                     android:textColor="#aaaaaa"
                     android:textSize="12sp" />
             </LinearLayout>

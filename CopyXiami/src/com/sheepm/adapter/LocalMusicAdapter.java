@@ -60,11 +60,7 @@ public class LocalMusicAdapter extends BaseAdapter {
 		}
 		 viewHolder.mImgAlbum.setImageBitmap(MediaUtil.getArtwork(mContext,
 		 mp3Infos.get(position).getId(), mp3Infos.get(position).getAlbumId(),
-		 true, false)
-		 );
-//		viewHolder.mImgAlbum.setImageBitmap(MediaUtil.getArtworkFromFile(
-//				mContext, mp3Infos.get(position).getId(), mp3Infos
-//						.get(position).getAlbumId()));
+		 true, true));
 		viewHolder.mTvTitle.setText(mp3Infos.get(position).getTitle());
 		viewHolder.mTvArtist.setText(mp3Infos.get(position).getArtist());
 		return convertView;

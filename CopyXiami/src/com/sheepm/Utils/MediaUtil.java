@@ -37,30 +37,30 @@ public class MediaUtil {
 	public static List<Mp3Info> getMp3Infos(Context context) {
 		Cursor cursor = context.getContentResolver().query(
 				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
-				MediaStore.Audio.Media .DEFAULT_SORT_ORDER);
+				MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+		int mId = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
+		int mTitle = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+		int mArtist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+		int mAlbum = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+		int mAlbumID = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+		int mDuration = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+		int mSize = cursor.getColumnIndex(MediaStore.Audio.Media.SIZE);
+		int mUrl = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+		int mIsMusic = cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC);
 
 		List<Mp3Info> mp3Infos = new ArrayList<Mp3Info>();
-		for (int i = 0; i < cursor.getCount(); i++) {
+		for (int i = 0,p = cursor.getCount(); i < p; i++) {
 			cursor.moveToNext();
 			Mp3Info mp3Info = new Mp3Info();
-			long id = cursor.getLong(cursor
-					.getColumnIndex(MediaStore.Audio.Media._ID)); // 音乐id
-			String title = cursor.getString((cursor
-					.getColumnIndex(MediaStore.Audio.Media.TITLE))); // 音乐标题
-			String artist = cursor.getString(cursor
-					.getColumnIndex(MediaStore.Audio.Media.ARTIST)); // 艺术家
-			String album = cursor.getString(cursor
-					.getColumnIndex(MediaStore.Audio.Media.ALBUM)); // 专辑
-			long albumId = cursor.getInt(cursor
-					.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-			long duration = cursor.getLong(cursor
-					.getColumnIndex(MediaStore.Audio.Media.DURATION)); // 时长
-			long size = cursor.getLong(cursor
-					.getColumnIndex(MediaStore.Audio.Media.SIZE)); // 文件大小
-			String url = cursor.getString(cursor
-					.getColumnIndex(MediaStore.Audio.Media.DATA)); // 文件路径
-			int isMusic = cursor.getInt(cursor
-					.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC)); // 是否为音乐
+			long id = cursor.getLong(mId); // 音乐id
+			String title = cursor.getString(mTitle); // 音乐标题
+			String artist = cursor.getString(mArtist); // 艺术家
+			String album = cursor.getString(mAlbum); // 专辑
+			long albumId = cursor.getInt(mAlbumID);
+			long duration = cursor.getLong(mDuration); // 时长
+			long size = cursor.getLong(mSize); // 文件大小
+			String url = cursor.getString(mUrl); // 文件路径
+			int isMusic = cursor.getInt(mIsMusic); // 是否为音乐
 			if (isMusic != 0) { // 只把音乐添加到集合当中
 				mp3Info.setId(id);
 				mp3Info.setTitle(title);
@@ -238,7 +238,7 @@ public class MediaUtil {
 				/** 我们的目标是在你N pixel的画面上显示。 所以需要调用computeSampleSize得到图片缩放的比例 **/
 				/** 这里的target为800是根据默认专辑图片大小决定的，800只是测试数字但是试验后发现完美的结合 **/
 				if (small) {
-					options.inSampleSize = computeSampleSize(options, 40);
+					options.inSampleSize = computeSampleSize(options, 100);
 				} else {
 					options.inSampleSize = computeSampleSize(options, 600);
 				}

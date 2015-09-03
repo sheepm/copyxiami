@@ -19,6 +19,7 @@ import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.sheepm.bean.Mp3Info;
 import com.sheepm.copyxiami.R;
@@ -49,7 +50,7 @@ public class MediaUtil {
 		int mIsMusic = cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC);
 
 		List<Mp3Info> mp3Infos = new ArrayList<Mp3Info>();
-		for (int i = 0,p = cursor.getCount(); i < p; i++) {
+		for (int i = 0, p = cursor.getCount(); i < p; i++) {
 			cursor.moveToNext();
 			Mp3Info mp3Info = new Mp3Info();
 			long id = cursor.getLong(mId); // 音乐id
@@ -61,7 +62,8 @@ public class MediaUtil {
 			long size = cursor.getLong(mSize); // 文件大小
 			String url = cursor.getString(mUrl); // 文件路径
 			int isMusic = cursor.getInt(mIsMusic); // 是否为音乐
-			if (isMusic != 0) { // 只把音乐添加到集合当中
+			if (isMusic != 0 && url.matches(".*\\.mp3$")) { // 只把音乐添加到集合当中
+				Log.d("song", "id:"+id+" title: "+ title + " artist:" + artist+ " album:" +album + " size:" +size );
 				mp3Info.setId(id);
 				mp3Info.setTitle(title);
 				mp3Info.setArtist(artist);
